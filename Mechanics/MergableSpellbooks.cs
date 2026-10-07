@@ -21,6 +21,10 @@ namespace MythicMagicMayhem.Mechanics
         public static void Patch()
         {
             var books = GetBooks();
+            // Indexed by mythic rank, not caster level. Without it, a mythic rank falls
+            // through to the class SpellsKnown table at caster level and stops granting
+            // known spells once that table ends at 20.
+            var spontaneousKnown = SpellsTableRefs.MythicSpontaneousSpellsKnownTable.Reference.Get();
 
             var angel = FeatureSelectMythicSpellbookRefs.AngelIncorporateSpellbook.Reference.Get();
             angel.m_AllowedSpellbooks = books;
@@ -41,24 +45,28 @@ namespace MythicMagicMayhem.Mechanics
             var trickster = FeatureSelectMythicSpellbookConfigurator.For("c4ef6975-167d-4cf5-acbf-d66b60e63f9c")
                 .SetDisplayName(DisplayName)
                 .SetDescription(Description)
+                .SetSpellKnownForSpontaneous(spontaneousKnown)
                 .Configure();
             trickster.m_AllowedSpellbooks = books;
 
             var demon = FeatureSelectMythicSpellbookConfigurator.For("f3ff8515-355e-4738-b128-c3d01483f1ca")
                 .SetDisplayName(DisplayName)
                 .SetDescription(Description)
+                .SetSpellKnownForSpontaneous(spontaneousKnown)
                 .Configure();
             demon.m_AllowedSpellbooks = books;
 
             var azata = FeatureSelectMythicSpellbookConfigurator.For("83385d9f-4d71-4e4e-9461-8703be762a20")
                 .SetDisplayName(DisplayName)
                 .SetDescription(Description)
+                .SetSpellKnownForSpontaneous(spontaneousKnown)
                 .Configure();
             azata.m_AllowedSpellbooks = books;
 
             var aeon = FeatureSelectMythicSpellbookConfigurator.For("2b7027ee-76cb-4c58-b2cf-f0475bc69fbb")
                 .SetDisplayName(DisplayName)
                 .SetDescription(Description)
+                .SetSpellKnownForSpontaneous(spontaneousKnown)
                 .Configure();
             aeon.m_AllowedSpellbooks = books;
 
@@ -66,7 +74,7 @@ namespace MythicMagicMayhem.Mechanics
             var gd = FeatureSelectMythicSpellbookConfigurator.New("gdspellbook", "2cd312fb-390d-4123-804e-c6f5b93383f1")
                 .SetDisplayName(DisplayName)
                 .SetDescription(Description)
-                .SetSpellKnownForSpontaneous(SpellsTableRefs.MythicSpontaneousSpellsKnownTable.Reference.Get())
+                .SetSpellKnownForSpontaneous(spontaneousKnown)
                 .SetMythicSpellList(SpellListRefs.GoldDragonSpellListMythic.Reference.Get())
                 .Configure();
             gd.m_AllowedSpellbooks = books;
