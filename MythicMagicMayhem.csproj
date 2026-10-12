@@ -33,17 +33,9 @@
 	<ItemGroup>
 		<None Include="Info.json" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="LocalizedStrings.json" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="mythicmagicmayhem_assets" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
-	<Target Name="ILRepack" AfterTargets="Build">
-		<ItemGroup>
-			<InputAssemblies Include="BlueprintCore.dll" />
-			<InputAssemblies Include="$(AssemblyName).dll" />
-			<OutputAssembly Include="$(AssemblyName).dll" />
-		</ItemGroup>
-		<Message Text="Merging: @(InputAssemblies) into @(OutputAssembly)" Importance="High" />
-		<ILRepack OutputType="Dll" MainAssembly="@(OutputAssembly)" OutputAssembly="@(OutputAssembly)" InputAssemblies="@(InputAssemblies)" WorkingDirectory="$(OutputPath)" />
-	</Target>
-	<Target Name="Deploy" AfterTargets="ILRepack">
+	<Target Name="Deploy" AfterTargets="MergeBlueprintCore">
 		<ItemGroup>
 			<Files Include="$(TargetDir)\**\*.*" />
 			<Files Remove="$(TargetDir)\**\*.dll" />
@@ -57,12 +49,20 @@
 
 		<Copy SourceFiles="@(Files)" DestinationFiles="@(Files->'$(WrathInstallDir)\Mods\$(AssemblyName)\%(RecursiveDir)%(Filename)%(Extension)')" />
 		<Delete Files="@(ToDelete)" />
-		<ZipDirectory SourceDirectory="$(MSBuildProjectDirectory)\$(OutputPath)" DestinationFile="$(MSBuildProjectDirectory)\$(OutputPath)\..\$(AssemblyName)-$(Version).zip" Overwrite="true" />
+		<PropertyGroup>
+			<PackageDir>$(MSBuildProjectDirectory)\$(OutputPath)..\package</PackageDir>
+		</PropertyGroup>
+		<ItemGroup>
+			<PackageFiles Include="$(TargetDir)Info.json;$(TargetDir)LocalizedStrings.json;$(TargetDir)mythicmagicmayhem_assets;$(TargetDir)$(AssemblyName).dll" />
+		</ItemGroup>
+		<RemoveDir Directories="$(PackageDir)" />
+		<Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageDir)" />
+		<ZipDirectory SourceDirectory="$(PackageDir)" DestinationFile="$(MSBuildProjectDirectory)\$(OutputPath)..\$(AssemblyName)-$(Version).zip" Overwrite="true" />
 	</Target>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" IncludeAssets="build; contentfiles" Version="0.4.2" PrivateAssets="all" />
-		<PackageReference Include="ILRepack.MSBuild.Task" Version="2.*" />
+		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.48" PrivateAssets="all" />
 		<PackageReference Include="WW-Blueprint-Core" Version="*" />
 	</ItemGroup>
 	<Target Name="GenerateCustomPropsFile" Condition="$(WrathInstallDir) == ''">

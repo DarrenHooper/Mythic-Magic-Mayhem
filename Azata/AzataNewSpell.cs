@@ -15,6 +15,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Utility;
 using MythicMagicMayhem.Aeon;
 using MythicMagicMayhem.Components;
@@ -226,6 +227,10 @@ namespace MythicMagicMayhem.Azata
 
             return AbilityConfigurator.NewSpell(
                 GroupHugAbility1, GroupHugAbility1Guid, SpellSchool.Abjuration, canSpecialize: false)
+              .CopyFrom(
+                AbilityRefs.FriendlyHug,
+                typeof(AbilityEffectRunAction),
+                typeof(ContextRankConfig))
               .SetDisplayName(DisplayName)
               .SetDescription(Description)
               .SetIcon(icon)
@@ -236,10 +241,6 @@ namespace MythicMagicMayhem.Azata
               .AddAbilityTargetsAround(includeDead: false, targetType: TargetType.Ally, radius: 15.Feet(), spreadSpeed: 20.Feet())
               .AddComponent(fx)
               //.AddToSpellLists(level: 8, SpellList.AzataMythic)
-              .AddAbilityEffectRunAction(
-                actions: ActionsBuilder.New()
-                  .CastSpell(AbilityRefs.FriendlyHug.ToString(), overrideSpellbook: true)
-                  .Build())
               .AddCraftInfoComponent(
                 aOEType: CraftAOE.AOE,
                 savingThrow: CraftSavingThrow.None,

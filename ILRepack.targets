@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+	<Target Name="MergeBlueprintCore" AfterTargets="Build">
+		<ItemGroup>
+			<InputAssemblies Include="$(TargetDir)$(AssemblyName).dll" />
+			<InputAssemblies Include="$(TargetDir)BlueprintCore.dll" />
+			<RepackLibraryPaths Include="$(TargetDir)" />
+			<RepackLibraryPaths Include="$(WrathInstallDir)\Wrath_Data\Managed" />
+			<RepackLibraryPaths Include="$(WrathInstallDir)\Wrath_Data\Managed\UnityModManager" />
+			<RepackLibraryPaths Include="$(WrathInstallDir)\Mods\ModMenu" />
+		</ItemGroup>
+		<ILRepack
+			Parallel="true"
+			Internalize="true"
+			DebugInfo="true"
+			InputAssemblies="@(InputAssemblies)"
+			LibraryPath="@(RepackLibraryPaths)"
+			TargetKind="Dll"
+			OutputFile="$(TargetDir)$(AssemblyName).dll" />
+	</Target>
+</Project>
