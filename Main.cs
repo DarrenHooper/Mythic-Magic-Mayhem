@@ -27,6 +27,10 @@ namespace MythicMagicMayhem
         {
             return $"{RootKey}.{partialKey}";
         }
+
+        public static bool AzataSpellBalanceChanges =>
+            ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg14"));
+
         public static bool Load(UnityModManager.ModEntry modEntry)
     {
       try
@@ -98,6 +102,9 @@ namespace MythicMagicMayhem
             Toggle.New(GetKey("tg10"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm10", "Azata Superpower"))
               .ShowVisualConnection())
           .AddToggle(
+            Toggle.New(GetKey("tg14"), defaultValue: false, Helpers.CreateString("toggle-desc-mmm14", "Azata Spell Balance Changes"))
+              .ShowVisualConnection())
+          .AddToggle(
             Toggle.New(GetKey("tg11"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm11", "Aeon Spell"))
               .ShowVisualConnection())
           .AddToggle(
@@ -159,6 +166,7 @@ namespace MythicMagicMayhem
                     if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg1"))) { LichSpell.Patch(); }
                     if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg5"))) { AngelSpell.Patch(); }
                     if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg9"))) { AzataSpellTweak.Patch(); }
+                    if (AzataSpellBalanceChanges) { AzataSpellBalance.Patch(); }
                     if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg11"))) { AeonSpellTweak.Patch(); }
                     if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg12"))) { DemonSpellTweak.Patch(); }
                     if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg13"))) { TricksterSpellTweak.Patch(); }

@@ -23,6 +23,24 @@
 - New Spell - Group Hug: This spell functions as friendly hug, except that it affects all allies in the area.
 - New Spell - Elysium Choir: When you sing all of Elysium joins with you. You use every performance ability you know. Those with a duration last for the duration of the spell (1 min), these benefits do not use up your daily usage of performance abilities.
 - New Spell - Primordial Dragon Dance: The primordial power of Elysium flows through you blasting your enemies and rendering them vulnerable to your elemental power.  Choose an element (fire, cold, lightning, acid or sonic) when you cast the spell, the spell leaps from target to target in the same way as chain lightning inflicting 1d6 damage of the chosen element per caster level. The target also gains vulnerability to the selected element for 1 minute, succeeding in a saving throw halves the damage but does not prevent the vulnerability effect.
+### Azata spell balance changes (optional toggle):
+- Rejuvenating Poem: Also resets the travel fatigue timer, as if the targets had just rested.
+- Voice of Renewal: Cast as a swift action.
+- Water Push: Affects enemies only, and deals 1d6 damage per three caster levels.
+- Chaotic Healing: Heals 1d20 per five caster levels. Aim it at an ally; it then chains to allies within 30 feet of that ally. The number of targets is caster level divided by 2, including the first ally.
+- Waterfall: Cold vulnerability applies even on a successful save. The save still prevents being knocked prone.
+- Deadly Beauty: Touch range, and can be cast on allies. The piercing retaliation triggers on every melee attack, hit or miss.
+- Elusive Nature: The critical hit that causes blink to begin misses completely. While blink is active, attacks resolve normally.
+- Repulsive Nature: Affects enemies only.
+- Field of Flowers: Enemies make a Reflex save each round. The first failure entangles them, and a second immobilizes them until they pass a Reflex save. They also make a Will save each round. The first failure distracts them, and a second puts them to sleep for 1d4 rounds. The sleep is mind-affecting, and waking from it makes them immune to being put to sleep by that casting. Allies in the field are immune to nausea and sickness. Flying creatures are unaffected.
+- Unbreakable Bond: Increases the effect's radius from 10 feet to 30 feet.
+- Rainbow Starfall: Calling another star is a swift action. The spell is tagged as acid, cold, electricity, fire, and sonic.
+- Rainbow Arrows: Deals the energy that would deal the most damage, using the same check as Rainbow Starfall. Damage is 1d8 per caster level. The Reflex save for half damage works. The spell is tagged as acid, cold, electricity, fire, and sonic.
+- Burst of Sonic Energy: Affects enemies only. Enemies within 5 feet are flat-footed for 1 round, so they cannot make attacks of opportunity.
+- Sudden Squall: Cone increased from 15 feet to 30 feet.
+- Primordial Dragon Dance: Damage dice increased from d6 to d8.
+- Water Torrent: Deals 1d6 bludgeoning damage per two caster levels. The bludgeoning weakness applies even on a successful Fortitude save. The save still prevents being knocked prone and slowed.
+- Winds of the Fall: Affects enemies only, and deals 1d12 slashing damage per two caster levels.
 ### Aeon adjustments:
 - Aeon is now a full caster!
 ![aeonspell](https://github.com/YLMstring/Mythic-Magic-Mayhem/assets/61271096/82323a86-62e9-4dad-ac7a-80aabc7c8037)
