@@ -35,6 +35,7 @@ using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
+using MythicMagicMayhem.Mechanics;
 using MythicMagicMayhem.Menu;
 using System;
 using System.Collections;
@@ -60,6 +61,8 @@ namespace MythicMagicMayhem.Azata
             PatchChaoticHealing();
             PatchWaterfall();
             PatchDeadlyBeauty();
+            PatchDeadlyBeautyCommunal();
+            PatchColorOfMagic();
             PatchElusiveNature();
             PatchRepulsiveNature();
             PatchFieldOfFlowers();
@@ -71,7 +74,7 @@ namespace MythicMagicMayhem.Azata
             PatchDragonDance();
             PatchWaterTorrent();
             PatchWindsOfTheFall();
-            Main.Logger.Info("Azata spell balance: Rejuvenating Poem restarts travel weariness. Voice of Renewal is a swift action. Water Push hits enemies for 1d6 per 3 caster levels. Chaotic Healing chains 1d20 per 5 caster levels. Waterfall always applies cold vulnerability. Deadly Beauty is a touch spell and retaliates against every melee attack. Elusive Nature turns the critical hit that starts blink into a miss. Repulsive Nature affects enemies only. Field of Flowers entangles on a Reflex save, sleeps on a Will save, and protects allies from nausea. Unbreakable Bond has a 30-foot radius. Rainbow Starfall calls later stars as a swift action. Rainbow Arrows deals the strongest energy for 1d8 per caster level and its Reflex save halves the damage. Burst of Sonic Energy hits enemies only, and adjacent enemies are flat-footed for 1 round. Sudden Squall is a 30-foot cone. Primordial Dragon Dance deals d8s. Water Torrent deals 1d6 per two caster levels and its bludgeoning weakness ignores the Fortitude save. Winds of the Fall hits enemies for 1d12 per two caster levels.");
+            Main.Logger.Info("Azata spell balance: Rejuvenating Poem restarts travel weariness. Voice of Renewal is a swift action. Water Push hits enemies for 1d6 per 3 caster levels. Chaotic Healing chains 1d20 per 5 caster levels. Waterfall always applies cold vulnerability. Deadly Beauty is a touch spell and retaliates against every melee attack. Deadly Beauty (Communal) is a 5th-level spell that grants Deadly Beauty to allies within 30 feet. The Color of Magic is a 10th-level rainbow burst that damages and debilitates enemies within 30 feet. Elusive Nature turns the critical hit that starts blink into a miss. Repulsive Nature affects enemies only. Field of Flowers entangles on a Reflex save, sleeps on a Will save, and protects allies from nausea. Unbreakable Bond has a 30-foot radius. Rainbow Starfall calls later stars as a swift action. Rainbow Arrows deals the strongest energy for 1d8 per caster level and its Reflex save halves the damage. Burst of Sonic Energy hits enemies only, and adjacent enemies are flat-footed for 1 round. Sudden Squall is a 30-foot cone. Primordial Dragon Dance deals d8s. Water Torrent deals 1d6 per two caster levels and its bludgeoning weakness ignores the Fortitude save. Winds of the Fall hits enemies for 1d12 per two caster levels.");
         }
 
         /// <summary>
@@ -200,6 +203,140 @@ namespace MythicMagicMayhem.Azata
             ability.m_Description = Helpers.CreateString(
                 "mmm-deadly-beauty-desc",
                 "The Azata covers a touched creature in flowers with tiny bees. That creature gets {g|Encyclopedia:Damage_Reduction}DR{/g} 5/adamantine. Any creature that makes a {g|Encyclopedia:MeleeAttack}melee attack{/g} against them, whether or not the attack hits, takes ({g|Encyclopedia:Dice}1d6{/g} + the Azata's {g|Encyclopedia:Caster_Level}caster level{/g}) points of {g|Encyclopedia:Damage_Type}piercing damage{/g}.");
+        }
+
+        /// <summary>
+        /// The effect component is shared with Deadly Beauty, so this uses the same buff and duration.
+        /// Ally includes the caster, and a personal area is centered on the caster.
+        /// </summary>
+        private static void PatchDeadlyBeautyCommunal()
+        {
+            var source = AbilityRefs.DeadlyBeauty.Reference.Get();
+            if (source.GetComponent<AbilityEffectRunAction>() == null)
+            {
+                Main.Logger.Error("Deadly Beauty is missing its effect, so Deadly Beauty (Communal) was not created.");
+                return;
+            }
+
+            var school = source.GetComponent<SpellComponent>()?.School ?? SpellSchool.Transmutation;
+            var ability = AbilityConfigurator.NewSpell(
+                    "NewSpell.DeadlyBeautyCommunal",
+                    "{7E4B1C9A-2D58-4F63-A1E0-6C8B3D5F9A24}",
+                    school,
+                    canSpecialize: false)
+                .CopyFrom(
+                    source,
+                    typeof(AbilityEffectRunAction),
+                    typeof(ContextRankConfig),
+                    typeof(AbilitySpawnFx),
+                    typeof(SpellDescriptorComponent))
+                .SetIcon(source.Icon)
+                .SetAnimation(source.Animation)
+                .SetRange(AbilityRange.Personal)
+                .SetActionType(UnitCommand.CommandType.Standard)
+                .AllowTargeting(point: false, enemies: false, friends: true, self: true)
+                .SetAvailableMetamagic(Metamagic.CompletelyNormal, Metamagic.Extend, Metamagic.Heighten, Metamagic.Quicken)
+                .AddAbilityTargetsAround(includeDead: false, targetType: TargetType.Ally, radius: 30.Feet(), spreadSpeed: 20.Feet())
+                .Configure();
+
+            ability.LocalizedDuration = source.LocalizedDuration;
+            ability.LocalizedSavingThrow = source.LocalizedSavingThrow;
+            ability.SpellResistance = source.SpellResistance;
+            ability.m_DisplayName = Helpers.CreateString(
+                "mmm-deadly-beauty-communal-name",
+                "Deadly Beauty (Communal)");
+            ability.m_Description = Helpers.CreateString(
+                "mmm-deadly-beauty-communal-desc",
+                "The Azata covers all allies within 30 feet in flowers with tiny bees. Each affected creature gets {g|Encyclopedia:Damage_Reduction}DR{/g} 5/adamantine. Any creature that makes a {g|Encyclopedia:MeleeAttack}melee attack{/g} against them, whether or not the attack hits, takes ({g|Encyclopedia:Dice}1d6{/g} + the Azata's {g|Encyclopedia:Caster_Level}caster level{/g}) points of {g|Encyclopedia:Damage_Type}piercing damage{/g}.");
+
+            if (FindAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>()?.Actions, new HashSet<object>()) == null)
+                Main.Logger.Error("Deadly Beauty (Communal) is missing Deadly Beauty's buff.");
+
+            SpellStuff.AddSpellLevel(ability, SpellListRefs.AzataMythicSpellsSpelllist.Reference, 5);
+        }
+
+        private static void PatchColorOfMagic()
+        {
+            var damage = ContextDice.Value(DiceType.D12, ContextValues.Constant(5), ContextValues.Constant(0));
+            var effects = ActionsBuilder.New()
+                .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Fire))
+                .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Cold))
+                .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Electricity))
+                .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Acid))
+                .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Sonic))
+                .SavingThrow(
+                    SavingThrowType.Fortitude,
+                    onResult: ActionsBuilder.New().ConditionalSaved(
+                        failed: ActionsBuilder.New().ApplyBuff(
+                            BuffRefs.Stunned.Reference.Get(),
+                            ContextDuration.Fixed(1),
+                            isFromSpell: true)))
+                .SavingThrow(
+                    SavingThrowType.Reflex,
+                    onResult: ActionsBuilder.New().ConditionalSaved(
+                        failed: ActionsBuilder.New().ApplyBuff(
+                            BuffRefs.BlindnessBuff.Reference.Get(),
+                            ContextDuration.FixedDice(DiceType.D4, 1, 0, DurationRate.Rounds),
+                            isFromSpell: true)))
+                .SavingThrow(
+                    SavingThrowType.Will,
+                    onResult: ActionsBuilder.New().ConditionalSaved(
+                        failed: ActionsBuilder.New().ApplyBuff(
+                            BuffRefs.Confusion.Reference.Get(),
+                            ContextDuration.Fixed(1),
+                            isFromSpell: true)));
+
+            var visualSource = AbilityRefs.RainbowPattern.Reference.Get();
+            var configurator = AbilityConfigurator.NewSpell(
+                    "NewSpell.ColorOfMagic",
+                    "{5A8D2F71-93C4-4B6E-A057-1D9E3C7F6248}",
+                    SpellSchool.Evocation,
+                    canSpecialize: false,
+                    SpellDescriptor.Fire,
+                    SpellDescriptor.Cold,
+                    SpellDescriptor.Electricity,
+                    SpellDescriptor.Acid,
+                    SpellDescriptor.Sonic)
+                .SetIcon(AbilityRefs.RainbowArrows.Reference.Get().Icon)
+                .SetAnimation(visualSource.Animation)
+                .SetRange(AbilityRange.Personal)
+                .SetActionType(UnitCommand.CommandType.Standard)
+                .AllowTargeting(point: false, enemies: true, friends: false, self: false)
+                .SetAvailableMetamagic(
+                    Metamagic.CompletelyNormal,
+                    Metamagic.Empower,
+                    Metamagic.Maximize,
+                    Metamagic.Quicken)
+                .AddAbilityTargetsAround(
+                    includeDead: false,
+                    targetType: TargetType.Enemy,
+                    radius: 30.Feet(),
+                    spreadSpeed: 20.Feet())
+                .AddAbilityEffectRunAction(effects);
+
+            var rainbowFx = visualSource.GetComponent<AbilitySpawnFx>();
+            if (rainbowFx == null)
+            {
+                Main.Logger.Info("Rainbow Pattern has no reusable visual effect; The Color of Magic will use its cast animation only.");
+            }
+            else
+            {
+                configurator.AddComponent(rainbowFx);
+            }
+
+            var ability = configurator.Configure();
+            ability.LocalizedDuration = AbilityRefs.Fireball.Reference.Get().LocalizedDuration;
+            ability.LocalizedSavingThrow = Helpers.CreateString(
+                "mmm-color-of-magic-save",
+                "Fortitude, Reflex, and Will negate individual effects");
+            ability.m_DisplayName = Helpers.CreateString(
+                "mmm-color-of-magic-name",
+                "The Color of Magic");
+            ability.m_Description = Helpers.CreateString(
+                "mmm-color-of-magic-desc",
+                "The Azata erupts with rainbow light. Every enemy within 30 feet takes {g|Encyclopedia:Dice}5d12{/g} points each of fire, cold, electricity, acid, and {g|Encyclopedia:Energy_Damage}sonic damage{/g}. This damage allows no {g|Encyclopedia:Saving_Throw}saving throw{/g} and is not affected by {g|Encyclopedia:Spell_Resistance}spell resistance{/g}. Each enemy then attempts three independent saving throws: a Fortitude save negates being {g|ConditionStunned}stunned{/g} for 1 round, a Reflex save negates being {g|ConditionBlind}blinded{/g} for {g|Encyclopedia:Dice}1d4{/g} rounds, and a Will save negates being {g|ConditionConfusion}confused{/g} for 1 round. Immunity to a condition prevents that condition normally.");
+
+            SpellStuff.AddSpellLevel(ability, SpellListRefs.AzataMythicSpellsSpelllist.Reference, 10);
         }
 
         /// <summary>

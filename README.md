@@ -30,6 +30,8 @@
 - Chaotic Healing: Heals 1d20 per five caster levels. Aim it at an ally; it then chains to allies within 30 feet of that ally. The number of targets is caster level divided by 2, including the first ally.
 - Waterfall: Cold vulnerability applies even on a successful save. The save still prevents being knocked prone.
 - Deadly Beauty: Touch range, and can be cast on allies. The piercing retaliation triggers on every melee attack, hit or miss.
+- Deadly Beauty (Communal): A 5th-level spell. The Azata and all allies within 30 feet gain Deadly Beauty, including its retaliation on a missed melee attack.
+- The Color of Magic: A 10th-level spell. Enemies within 30 feet take 5d12 each of fire, cold, electricity, acid, and sonic damage with no save or spell resistance. Independent Fortitude, Reflex, and Will saves negate a 1-round stun, 1d4 rounds of blindness, and 1 round of confusion respectively.
 - Elusive Nature: The critical hit that causes blink to begin misses completely. While blink is active, attacks resolve normally.
 - Repulsive Nature: Affects enemies only.
 - Field of Flowers: Enemies make a Reflex save each round. The first failure entangles them, and a second immobilizes them until they pass a Reflex save. They also make a Will save each round. The first failure distracts them, and a second puts them to sleep for 1d4 rounds. The sleep is mind-affecting, and waking from it makes them immune to being put to sleep by that casting. Allies in the field are immune to nausea and sickness. Flying creatures are unaffected.
