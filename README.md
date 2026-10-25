@@ -31,7 +31,7 @@
 - Waterfall: Cold vulnerability applies even on a successful save. The save still prevents being knocked prone.
 - Deadly Beauty: Touch range, and can be cast on allies. The piercing retaliation triggers on every melee attack, hit or miss.
 - Deadly Beauty (Communal): A 5th-level spell. The Azata and all allies within 30 feet gain Deadly Beauty, including its retaliation on a missed melee attack.
-- The Color of Magic: A 10th-level spell. Enemies within 30 feet take 5d12 each of fire, cold, electricity, acid, and sonic damage with no save or spell resistance. Independent Fortitude, Reflex, and Will saves negate a 1-round stun, 1d4 rounds of blindness, and 1 round of confusion respectively.
+- The Color of Magic: A 10th-level spell. Enemies within 30 feet take 5d12 each of fire, cold, electricity, acid, and sonic damage with no save or spell resistance. Independent Fortitude, Reflex, and Will saves negate a 1-round stun, 1d4 rounds of blindness, and 1 round of confusion respectively. Elemental Barrage can consume one existing mark, but this spell's own elements do not trigger it against each other.
 - Elusive Nature: The critical hit that causes blink to begin misses completely. While blink is active, attacks resolve normally.
 - Repulsive Nature: Affects enemies only.
 - Field of Flowers: Enemies make a Reflex save each round. The first failure entangles them, and a second immobilizes them until they pass a Reflex save. They also make a Will save each round. The first failure distracts them, and a second puts them to sleep for 1d4 rounds. The sleep is mind-affecting, and waking from it makes them immune to being put to sleep by that casting. Allies in the field are immune to nausea and sickness. Flying creatures are unaffected.
@@ -62,6 +62,14 @@
 - New Spell - Rain of Halberdiers: Conjuring halberds to rain from the sky is all well and good, but what's the point of having all these halberds without someone to wield them?  This spell functions as Rain of Halberds with the exception that it summons one grave knight (as per the create undead spell) per four caster levels for the duration of the spell.
 - New Spell - Trick Developer: You came to the realisation long ago that life is just a game, and if so then that means someone had to have designed that game.  There is no one you cannot trick and you use this to tap into potential you otherwise wouldn't (and shouldn't) have.  Choose one of the following 10th level mythic spells (Army of Heaven, Absolute Death, Abyssal Breach, Edict of Absolute Authority or Elysium Choir), you cast that spell.
 - New Spell - ‘Helpful’ Metagamer: Every group of friends has someone who ‘knows better’ and has no problem with sharing their superior knowledge with their companions regardless of whether or not it has been asked for, congratulations for being THAT guy. For 1 minute while within a 30ft radius of the trickster all allies gain Sneaky Quack, ignore critical hit and precision damage immunity and gain sneak attack dice equal to the trickster's if it's not already higher. When the spell ends all allies become exhausted for 1 minute due to the constant frustrating ’suggestions‘ from the trickster.
+### Estimated hit chance (optional toggle, off by default):
+- In turn-based mode, the cursor shows an estimate while an attack or a spell is aimed at a creature.
+- Attacks show the chance the first attack hits. A natural 1 still misses and a natural 20 still hits, so that number stays between 5% and 95%.
+- A spell with a save shows the chance the target fails it. Fortitude, Reflex, and Will are listed separately when a spell uses more than one. Persistent Spell is included. A custom DC on that save is included.
+- Spell resistance shows the chance the caster level check beats it, including spell penetration and Piercing Spell. That check can be 0% or 100%. A creature immune to the spell shows "SR immune".
+- Concealment shows the separate miss chance, such as 20% for blur.
+- Adapted from [Prestige Plus](https://github.com/YLMstring/Prestige-Plus). The estimate reads the bonuses the combat log would use and stops before any die is rolled, so hovering cannot spend an attack or force a save.
+- Still left out: later attacks in a full attack, off-hand attacks, combat maneuvers, concealment rerolls, mirror image, and a save DC that changes only because of a condition checked while the spell is resolving.
 ## Thanks to  
 -   WittleWolfie for his [Blueprint-Core](https://wittlewolfie.github.io/WW-Blueprint-Core/index.html), which makes modding easy and enjoyable.
 -   Bubbles (factsubio) for BubblePrints, saving me from going mad.

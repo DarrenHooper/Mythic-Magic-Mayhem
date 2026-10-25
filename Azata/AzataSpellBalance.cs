@@ -20,6 +20,7 @@ using Kingmaker.Enums.Damage;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
@@ -257,8 +258,10 @@ namespace MythicMagicMayhem.Azata
 
         private static void PatchColorOfMagic()
         {
-            var damage = ContextDice.Value(DiceType.D12, ContextValues.Constant(5), ContextValues.Constant(0));
-            var effects = ActionsBuilder.New()
+            var damage = ContextDice.Value(DiceType.D12, bonus: 0, diceCount: ContextValues.Constant(5));
+            var effects = ActionsBuilder.New();
+            AddRainbowProjectiles(effects);
+            effects
                 .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Fire))
                 .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Cold))
                 .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Electricity))
@@ -301,7 +304,8 @@ namespace MythicMagicMayhem.Azata
                 .SetAnimation(visualSource.Animation)
                 .SetRange(AbilityRange.Personal)
                 .SetActionType(UnitCommand.CommandType.Standard)
-                .AllowTargeting(point: false, enemies: true, friends: false, self: false)
+                // Personal range resolves against the caster. The area component still limits the effect to enemies.
+                .AllowTargeting(point: false, enemies: true, friends: false, self: true)
                 .SetAvailableMetamagic(
                     Metamagic.CompletelyNormal,
                     Metamagic.Empower,
@@ -314,17 +318,14 @@ namespace MythicMagicMayhem.Azata
                     spreadSpeed: 20.Feet())
                 .AddAbilityEffectRunAction(effects);
 
-            var rainbowFx = visualSource.GetComponent<AbilitySpawnFx>();
-            if (rainbowFx == null)
-            {
-                Main.Logger.Info("Rainbow Pattern has no reusable visual effect; The Color of Magic will use its cast animation only.");
-            }
-            else
-            {
-                configurator.AddComponent(rainbowFx);
-            }
+            AddCasterBurst(configurator, visualSource, "Rainbow Pattern");
+            AddCasterBurst(configurator, AbilityRefs.RainbowDome.Reference.Get(), "Rainbow Dome");
+            AddCasterBurst(configurator, AbilityRefs.BurstOfSonicEnergy.Reference.Get(), "Burst of Sonic Energy");
 
             var ability = configurator.Configure();
+            ColorOfMagicAbility = ability;
+            PatchElementalBarrage();
+            ability.SpellResistance = false;
             ability.LocalizedDuration = AbilityRefs.Fireball.Reference.Get().LocalizedDuration;
             ability.LocalizedSavingThrow = Helpers.CreateString(
                 "mmm-color-of-magic-save",
@@ -337,6 +338,181 @@ namespace MythicMagicMayhem.Azata
                 "The Azata erupts with rainbow light. Every enemy within 30 feet takes {g|Encyclopedia:Dice}5d12{/g} points each of fire, cold, electricity, acid, and {g|Encyclopedia:Energy_Damage}sonic damage{/g}. This damage allows no {g|Encyclopedia:Saving_Throw}saving throw{/g} and is not affected by {g|Encyclopedia:Spell_Resistance}spell resistance{/g}. Each enemy then attempts three independent saving throws: a Fortitude save negates being {g|ConditionStunned}stunned{/g} for 1 round, a Reflex save negates being {g|ConditionBlind}blinded{/g} for {g|Encyclopedia:Dice}1d4{/g} rounds, and a Will save negates being {g|ConditionConfusion}confused{/g} for 1 round. Immunity to a condition prevents that condition normally.");
 
             SpellStuff.AddSpellLevel(ability, SpellListRefs.AzataMythicSpellsSpelllist.Reference, 10);
+        }
+
+        private static BlueprintAbility ColorOfMagicAbility;
+        private static MechanicsContext ColorBarrageRoot;
+        private static readonly Dictionary<UnitEntityData, RuleDealDamage> ColorBarrageEvents = new();
+        private static readonly HashSet<MethodInfo> PatchedBarrageMethods = new();
+
+        /// <summary>
+        /// Rainbow Pattern's effect component cannot be shared, so each visual is copied onto this spell and anchored to the caster.
+        /// Rainbow rays are also fired at every affected enemy.
+        /// </summary>
+        private static void AddCasterBurst(AbilityConfigurator configurator, BlueprintAbility source, string spellName)
+        {
+            var fx = source?.GetComponent<AbilitySpawnFx>();
+            if (fx == null)
+            {
+                Main.Logger.Info($"{spellName} has no burst visual.");
+                return;
+            }
+
+            var clone = CloneComponent(fx);
+            var anchor = typeof(AbilitySpawnFx).GetField("Anchor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?? typeof(AbilitySpawnFx).GetField("m_Anchor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (anchor != null && Enum.GetNames(anchor.FieldType).Contains("Caster"))
+                anchor.SetValue(clone, Enum.Parse(anchor.FieldType, "Caster"));
+            configurator.AddComponent(clone);
+        }
+
+        private static BlueprintComponent CloneComponent(BlueprintComponent source)
+        {
+            var clone = typeof(UnityEngine.ScriptableObject).IsAssignableFrom(source.GetType())
+                ? (BlueprintComponent)(object)UnityEngine.ScriptableObject.CreateInstance(source.GetType())
+                : (BlueprintComponent)Activator.CreateInstance(source.GetType());
+            foreach (var field in source.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (field.IsStatic || field.Name.Contains("Owner")) continue;
+                field.SetValue(clone, field.GetValue(source));
+            }
+            return clone;
+        }
+
+        private static void AddRainbowProjectiles(ActionsBuilder effects)
+        {
+            var projectiles = FindProjectiles(AbilityRefs.RainbowArrows.Reference.Get())
+                .Select(projectile => projectile.ToString())
+                .Where(projectile => !string.IsNullOrEmpty(projectile))
+                .ToList();
+            if (projectiles.Count == 0)
+            {
+                projectiles.Add(ProjectileRefs.ArrowFire00.ToString());
+                projectiles.Add(ProjectileRefs.ColdCommonProjectile00.ToString());
+                projectiles.Add(ProjectileRefs.ElectroCommonProjectile00.ToString());
+                projectiles.Add(ProjectileRefs.AcidArrow00.ToString());
+                projectiles.Add(ProjectileRefs.SonicCommonRay00_Projectile.ToString());
+            }
+
+            foreach (var projectile in projectiles)
+                effects.ProjectileFx(projectile);
+        }
+
+        private static List<object> FindProjectiles(BlueprintAbility ability)
+        {
+            var found = new List<object>();
+            var deliver = ability.GetComponent<AbilityDeliverProjectile>();
+            if (deliver == null) return found;
+            foreach (var field in deliver.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (field.Name.IndexOf("rojectile", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                CollectProjectiles(field.GetValue(deliver), found, new HashSet<object>());
+            }
+            return found;
+        }
+
+        private static void CollectProjectiles(object node, List<object> found, HashSet<object> seen)
+        {
+            if (node == null || node is string || !seen.Add(node)) return;
+            if (node.GetType().Name.IndexOf("Projectile", StringComparison.OrdinalIgnoreCase) >= 0
+                && node.GetType().Name.IndexOf("Reference", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                found.Add(node);
+                return;
+            }
+
+            if (node is IEnumerable enumerable)
+            {
+                foreach (var item in enumerable)
+                    CollectProjectiles(item, found, seen);
+            }
+        }
+
+        /// <summary>
+        /// Elemental Barrage detonates when a later damage event has a different energy.
+        /// The five packets belong to one spell, so only the first packet may interact with a mark.
+        /// </summary>
+        private static void PatchElementalBarrage()
+        {
+            var harmony = new Harmony("MythicMagicMayhem.ColorOfMagicBarrage");
+            var count = 0;
+            foreach (var feature in FeatureRefs.All)
+            {
+                var blueprint = feature.Reference.Get();
+                if (blueprint?.name?.IndexOf("ElementalBarrage", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                count += PatchBarrageHandlers(blueprint.Components, harmony);
+            }
+            foreach (var buff in BuffRefs.All)
+            {
+                var blueprint = buff.Reference.Get();
+                if (blueprint?.name?.IndexOf("ElementalBarrage", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                count += PatchBarrageHandlers(blueprint.Components, harmony);
+            }
+
+            if (count == 0)
+                Main.Logger.Error("Elemental Barrage was not found, so The Color of Magic can trigger it for every element.");
+        }
+
+        private static int PatchBarrageHandlers(IEnumerable<BlueprintComponent> components, Harmony harmony)
+        {
+            var count = 0;
+            if (components == null) return count;
+            foreach (var component in components)
+            {
+                foreach (var method in component.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (method.Name is not ("OnEventAboutToTrigger" or "OnEventDidTrigger")) continue;
+                    var parameters = method.GetParameters();
+                    if (parameters.Length != 1 || parameters[0].ParameterType != typeof(RuleDealDamage)) continue;
+                    if (!PatchedBarrageMethods.Add(method)) continue;
+                    harmony.Patch(method, prefix: new HarmonyMethod(typeof(AzataSpellBalance), nameof(SuppressRepeatedColorBarrage)));
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        private static bool SuppressRepeatedColorBarrage(RuleDealDamage evt)
+        {
+            try
+            {
+                if (evt?.Target == null || !IsColorOfMagic(evt)) return true;
+                var root = RootContext(evt.Reason.Context);
+                if (!ReferenceEquals(root, ColorBarrageRoot))
+                {
+                    ColorBarrageRoot = root;
+                    ColorBarrageEvents.Clear();
+                }
+
+                if (ColorBarrageEvents.TryGetValue(evt.Target, out var first) && !ReferenceEquals(first, evt))
+                    return false;
+                ColorBarrageEvents[evt.Target] = evt;
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Main.Logger.Error("Failed to limit Elemental Barrage for The Color of Magic.", exception);
+                return true;
+            }
+        }
+
+        private static bool IsColorOfMagic(RuleDealDamage damage)
+        {
+            var context = damage.Reason?.Context;
+            while (context != null)
+            {
+                if (context.SourceAbility == ColorOfMagicAbility || context.AssociatedBlueprint == ColorOfMagicAbility)
+                    return true;
+                context = context.ParentContext;
+            }
+            return false;
+        }
+
+        private static MechanicsContext RootContext(MechanicsContext context)
+        {
+            while (context?.ParentContext != null)
+                context = context.ParentContext;
+            return context;
         }
 
         /// <summary>

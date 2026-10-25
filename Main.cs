@@ -31,6 +31,9 @@ namespace MythicMagicMayhem
         public static bool AzataSpellBalanceChanges =>
             ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg14"));
 
+        public static bool EstimatedHitChance =>
+            ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg15"));
+
         public static bool Load(UnityModManager.ModEntry modEntry)
     {
       try
@@ -118,6 +121,9 @@ namespace MythicMagicMayhem
               .ShowVisualConnection())
           .AddToggle(
             Toggle.New(GetKey("tg8"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm8", "Restore Owlcat Merger"))
+              .ShowVisualConnection())
+          .AddToggle(
+            Toggle.New(GetKey("tg15"), defaultValue: false, Helpers.CreateString("toggle-desc-mmm15", "Estimated Hit Chance"))
               .ShowVisualConnection()));
 
                 try
