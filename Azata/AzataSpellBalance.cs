@@ -75,7 +75,7 @@ namespace MythicMagicMayhem.Azata
             PatchDragonDance();
             PatchWaterTorrent();
             PatchWindsOfTheFall();
-            Main.Logger.Info("Azata spell balance: Rejuvenating Poem restarts travel weariness. Voice of Renewal is a swift action. Water Push hits enemies for 1d6 per 3 caster levels. Chaotic Healing chains 1d20 per 5 caster levels. Waterfall always applies cold vulnerability. Deadly Beauty is a touch spell and retaliates against every melee attack. Deadly Beauty (Communal) is a 5th-level spell that grants Deadly Beauty to allies within 30 feet. The Color of Magic is a 10th-level rainbow burst that damages and debilitates enemies within 30 feet. Elusive Nature turns the critical hit that starts blink into a miss. Repulsive Nature affects enemies only. Field of Flowers entangles on a Reflex save, sleeps on a Will save, and protects allies from nausea. Unbreakable Bond has a 30-foot radius. Rainbow Starfall calls later stars as a swift action. Rainbow Arrows deals the strongest energy for 1d8 per caster level and its Reflex save halves the damage. Burst of Sonic Energy hits enemies only, and adjacent enemies are flat-footed for 1 round. Sudden Squall is a 30-foot cone. Primordial Dragon Dance deals d8s. Water Torrent deals 1d6 per two caster levels and its bludgeoning weakness ignores the Fortitude save. Winds of the Fall hits enemies for 1d12 per two caster levels.");
+            Main.Logger.Info("Azata spell balance: Rejuvenating Poem restarts travel weariness. Voice of Renewal is a swift action. Water Push hits enemies for 1d6 per 3 caster levels. Chaotic Healing chains 1d20 per 5 caster levels. Waterfall always applies cold vulnerability. Deadly Beauty is a touch spell and retaliates against a successful melee hit. Deadly Beauty (Communal) is a 5th-level spell that grants Deadly Beauty to allies within 30 feet. The Color of Magic is a 10th-level rainbow burst that damages and debilitates enemies within 30 feet. Elusive Nature turns the critical hit that starts blink into a miss. Repulsive Nature affects enemies only. Field of Flowers entangles on a Reflex save, sleeps on a Will save, and protects allies from nausea. Unbreakable Bond has a 30-foot radius. Rainbow Starfall calls later stars as a swift action. Rainbow Arrows deals the strongest energy for 1d8 per caster level and its Reflex save halves the damage. Burst of Sonic Energy hits enemies only, and adjacent enemies are flat-footed for 1 round. Sudden Squall is a 30-foot cone. Primordial Dragon Dance deals d8s. Water Torrent deals 1d6 per two caster levels and its bludgeoning weakness ignores the Fortitude save. Winds of the Fall hits enemies for 1d12 per two caster levels.");
         }
 
         /// <summary>
@@ -198,12 +198,12 @@ namespace MythicMagicMayhem.Azata
             }
             else
             {
-                trigger.OnlyHit = false;
+                trigger.OnlyHit = true;
             }
 
             ability.m_Description = Helpers.CreateString(
                 "mmm-deadly-beauty-desc",
-                "The Azata covers a touched creature in flowers with tiny bees. That creature gets {g|Encyclopedia:Damage_Reduction}DR{/g} 5/adamantine. Any creature that makes a {g|Encyclopedia:MeleeAttack}melee attack{/g} against them, whether or not the attack hits, takes ({g|Encyclopedia:Dice}1d6{/g} + the Azata's {g|Encyclopedia:Caster_Level}caster level{/g}) points of {g|Encyclopedia:Damage_Type}piercing damage{/g}.");
+                "The Azata covers a touched creature in flowers with tiny bees. That creature gets {g|Encyclopedia:Damage_Reduction}DR{/g} 5/adamantine. Any creature that hits them with a {g|Encyclopedia:MeleeAttack}melee attack{/g} takes ({g|Encyclopedia:Dice}1d6{/g} + the Azata's {g|Encyclopedia:Caster_Level}caster level{/g}) points of {g|Encyclopedia:Damage_Type}piercing damage{/g}.");
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace MythicMagicMayhem.Azata
                 "Deadly Beauty (Communal)");
             ability.m_Description = Helpers.CreateString(
                 "mmm-deadly-beauty-communal-desc",
-                "The Azata covers all allies within 30 feet in flowers with tiny bees. Each affected creature gets {g|Encyclopedia:Damage_Reduction}DR{/g} 5/adamantine. Any creature that makes a {g|Encyclopedia:MeleeAttack}melee attack{/g} against them, whether or not the attack hits, takes ({g|Encyclopedia:Dice}1d6{/g} + the Azata's {g|Encyclopedia:Caster_Level}caster level{/g}) points of {g|Encyclopedia:Damage_Type}piercing damage{/g}.");
+                "The Azata covers all allies within 30 feet in flowers with tiny bees. Each affected creature gets {g|Encyclopedia:Damage_Reduction}DR{/g} 5/adamantine. Any creature that hits them with a {g|Encyclopedia:MeleeAttack}melee attack{/g} takes ({g|Encyclopedia:Dice}1d6{/g} + the Azata's {g|Encyclopedia:Caster_Level}caster level{/g}) points of {g|Encyclopedia:Damage_Type}piercing damage{/g}.");
 
             if (FindAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>()?.Actions, new HashSet<object>()) == null)
                 Main.Logger.Error("Deadly Beauty (Communal) is missing Deadly Beauty's buff.");
@@ -261,12 +261,15 @@ namespace MythicMagicMayhem.Azata
             var damage = ContextDice.Value(DiceType.D12, bonus: 0, diceCount: ContextValues.Constant(5));
             var effects = ActionsBuilder.New();
             AddRainbowProjectiles(effects);
+            // Separate damage events, so Elemental Barrage sees the same loop as Elemental Assessor:
+            // mark, consume, mark, consume. The fifth event leaves a mark. Sonic is the first consumer
+            // because a leftover sonic mark is not reliably removed by a later element.
             effects
                 .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Fire))
+                .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Sonic))
                 .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Cold))
                 .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Electricity))
                 .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Acid))
-                .DealDamage(value: damage, damageType: DamageTypes.Energy(DamageEnergyType.Sonic))
                 .SavingThrow(
                     SavingThrowType.Fortitude,
                     onResult: ActionsBuilder.New().ConditionalSaved(
@@ -323,8 +326,6 @@ namespace MythicMagicMayhem.Azata
             AddCasterBurst(configurator, AbilityRefs.BurstOfSonicEnergy.Reference.Get(), "Burst of Sonic Energy");
 
             var ability = configurator.Configure();
-            ColorOfMagicAbility = ability;
-            PatchElementalBarrage();
             ability.SpellResistance = false;
             ability.LocalizedDuration = AbilityRefs.Fireball.Reference.Get().LocalizedDuration;
             ability.LocalizedSavingThrow = Helpers.CreateString(
@@ -335,15 +336,10 @@ namespace MythicMagicMayhem.Azata
                 "The Color of Magic");
             ability.m_Description = Helpers.CreateString(
                 "mmm-color-of-magic-desc",
-                "The Azata erupts with rainbow light. Every enemy within 30 feet takes {g|Encyclopedia:Dice}5d12{/g} points each of fire, cold, electricity, acid, and {g|Encyclopedia:Energy_Damage}sonic damage{/g}. This damage allows no {g|Encyclopedia:Saving_Throw}saving throw{/g} and is not affected by {g|Encyclopedia:Spell_Resistance}spell resistance{/g}. Each enemy then attempts three independent saving throws: a Fortitude save negates being {g|ConditionStunned}stunned{/g} for 1 round, a Reflex save negates being {g|ConditionBlind}blinded{/g} for {g|Encyclopedia:Dice}1d4{/g} rounds, and a Will save negates being {g|ConditionConfusion}confused{/g} for 1 round. Immunity to a condition prevents that condition normally.");
+                "The Azata erupts with rainbow light. Every enemy within 30 feet takes {g|Encyclopedia:Dice}5d12{/g} points each of fire, sonic, cold, electricity, and acid {g|Encyclopedia:Energy_Damage}damage{/g}, in that order. This damage allows no {g|Encyclopedia:Saving_Throw}saving throw{/g} and is not affected by {g|Encyclopedia:Spell_Resistance}spell resistance{/g}. Each enemy then attempts three independent saving throws: a Fortitude save negates being {g|ConditionStunned}stunned{/g} for 1 round, a Reflex save negates being {g|ConditionBlind}blinded{/g} for {g|Encyclopedia:Dice}1d4{/g} rounds, and a Will save negates being {g|ConditionConfusion}confused{/g} for 1 round. Immunity to a condition prevents that condition normally.");
 
             SpellStuff.AddSpellLevel(ability, SpellListRefs.AzataMythicSpellsSpelllist.Reference, 10);
         }
-
-        private static BlueprintAbility ColorOfMagicAbility;
-        private static MechanicsContext ColorBarrageRoot;
-        private static readonly Dictionary<UnitEntityData, RuleDealDamage> ColorBarrageEvents = new();
-        private static readonly HashSet<MethodInfo> PatchedBarrageMethods = new();
 
         /// <summary>
         /// Rainbow Pattern's effect component cannot be shared, so each visual is copied onto this spell and anchored to the caster.
@@ -426,93 +422,6 @@ namespace MythicMagicMayhem.Azata
                 foreach (var item in enumerable)
                     CollectProjectiles(item, found, seen);
             }
-        }
-
-        /// <summary>
-        /// Elemental Barrage detonates when a later damage event has a different energy.
-        /// The five packets belong to one spell, so only the first packet may interact with a mark.
-        /// </summary>
-        private static void PatchElementalBarrage()
-        {
-            var harmony = new Harmony("MythicMagicMayhem.ColorOfMagicBarrage");
-            var count = 0;
-            foreach (var feature in FeatureRefs.All)
-            {
-                var blueprint = feature.Reference.Get();
-                if (blueprint?.name?.IndexOf("ElementalBarrage", StringComparison.OrdinalIgnoreCase) < 0) continue;
-                count += PatchBarrageHandlers(blueprint.Components, harmony);
-            }
-            foreach (var buff in BuffRefs.All)
-            {
-                var blueprint = buff.Reference.Get();
-                if (blueprint?.name?.IndexOf("ElementalBarrage", StringComparison.OrdinalIgnoreCase) < 0) continue;
-                count += PatchBarrageHandlers(blueprint.Components, harmony);
-            }
-
-            if (count == 0)
-                Main.Logger.Error("Elemental Barrage was not found, so The Color of Magic can trigger it for every element.");
-        }
-
-        private static int PatchBarrageHandlers(IEnumerable<BlueprintComponent> components, Harmony harmony)
-        {
-            var count = 0;
-            if (components == null) return count;
-            foreach (var component in components)
-            {
-                foreach (var method in component.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-                {
-                    if (method.Name is not ("OnEventAboutToTrigger" or "OnEventDidTrigger")) continue;
-                    var parameters = method.GetParameters();
-                    if (parameters.Length != 1 || parameters[0].ParameterType != typeof(RuleDealDamage)) continue;
-                    if (!PatchedBarrageMethods.Add(method)) continue;
-                    harmony.Patch(method, prefix: new HarmonyMethod(typeof(AzataSpellBalance), nameof(SuppressRepeatedColorBarrage)));
-                    count++;
-                }
-            }
-            return count;
-        }
-
-        private static bool SuppressRepeatedColorBarrage(RuleDealDamage evt)
-        {
-            try
-            {
-                if (evt?.Target == null || !IsColorOfMagic(evt)) return true;
-                var root = RootContext(evt.Reason.Context);
-                if (!ReferenceEquals(root, ColorBarrageRoot))
-                {
-                    ColorBarrageRoot = root;
-                    ColorBarrageEvents.Clear();
-                }
-
-                if (ColorBarrageEvents.TryGetValue(evt.Target, out var first) && !ReferenceEquals(first, evt))
-                    return false;
-                ColorBarrageEvents[evt.Target] = evt;
-                return true;
-            }
-            catch (Exception exception)
-            {
-                Main.Logger.Error("Failed to limit Elemental Barrage for The Color of Magic.", exception);
-                return true;
-            }
-        }
-
-        private static bool IsColorOfMagic(RuleDealDamage damage)
-        {
-            var context = damage.Reason?.Context;
-            while (context != null)
-            {
-                if (context.SourceAbility == ColorOfMagicAbility || context.AssociatedBlueprint == ColorOfMagicAbility)
-                    return true;
-                context = context.ParentContext;
-            }
-            return false;
-        }
-
-        private static MechanicsContext RootContext(MechanicsContext context)
-        {
-            while (context?.ParentContext != null)
-                context = context.ParentContext;
-            return context;
         }
 
         /// <summary>
