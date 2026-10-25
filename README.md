@@ -17,8 +17,17 @@
 - Add Improved Angelic Halo - Divine Champion: While Angelic Halo is active energy damage is converted into holy damage
 - Add Improved Angelic Halo - Flames of Heaven: While Angelic Halo is active energy damage is converted into fire damage
 ### Azata adjustments:
-- Azata is now a full caster!
-![azataspell](https://github.com/YLMstring/Mythic-Magic-Mayhem/assets/61271096/7c67d046-161f-4319-93cd-0b999c01d1e2)
+- Azata is now a full caster. Spell levels:
+  - 1: Remove Fear, Snowball
+  - 2: Field of Flowers, Ode to Miraculous Magic, Rejuvenating Poem, Voice of Renewal
+  - 3: Haste, Nature's Grasp, Optimistic Smile, Rainbow Dome
+  - 4: Chaotic Healing, Deadly Beauty, Waterfall
+  - 5: Deadly Beauty (Communal, balance toggle), Friendly Hug, Second Breath, Sudden Squall
+  - 6: Euphoric Tranquility, Joy of Life, Overwhelming Presence, Protection of Nature, Rainbow Starfall, Songs of Steel, Winds of the Fall
+  - 7: A Hero Never Surrenders, Prismatic Spray, Rainbow Arrows, Revolt, Unbreakable Bond, Water Torrent
+  - 8: Group Hug, Polar Ray, Seamantle, Stormbolts, Summon Elder Elemental
+  - 9: Dominate Person, Elysium Choir, Heroic Invocation, Icy Prison, Mass, Power Word Kill, Primordial Dragon Dance, Tsunami
+  - 10: The Color of Magic (balance toggle). There is no 10th-level spell unless that toggle is on.
 - New Superpower - Harmonious Echo: Azata may start a second performance while maintaining another.
 - New Spell - Group Hug: This spell functions as friendly hug, except that it affects all allies in the area.
 - New Spell - Elysium Choir: When you sing all of Elysium joins with you. You use every performance ability you know. Those with a duration last for the duration of the spell (1 min), these benefits do not use up your daily usage of performance abilities.
