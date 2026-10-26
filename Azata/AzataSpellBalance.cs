@@ -39,6 +39,7 @@ using Kingmaker.Utility;
 using MythicMagicMayhem.Mechanics;
 using MythicMagicMayhem.Menu;
 using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,8 +116,9 @@ namespace MythicMagicMayhem.Azata
         }
 
         /// <summary>
-        /// Same delivery as Chain Lightning: the clicked creature is the first target, and later
-        /// targets are the closest valid creatures within 30 feet of that creature.
+        /// The clicked ally is healed first. Later targets are the closest allies within 30 feet
+        /// of that ally. The conjuration ray draws its beam as soon as it launches, so the heal
+        /// is applied with the beam instead of waiting for the projectile to report a hit.
         /// </summary>
         private static void PatchChaoticHealing()
         {
@@ -124,30 +126,29 @@ namespace MythicMagicMayhem.Azata
             AbilityConfigurator.For(ability)
                 .SetRange(AbilityRange.Long)
                 .RemoveComponents(component => component is AbilityTargetsAround)
-                .AddAbilityDeliverChain(
-                    projectile: ProjectileRefs.BuffRay00_Conjuration.ToString(),
-                    projectileFirst: ProjectileRefs.BuffRay00_Conjuration.ToString(),
-                    radius: 30.Feet(),
-                    targetDead: false,
-                    targetsCount: ContextValues.Rank(AbilityRankType.ProjectilesCount),
-                    targetType: TargetType.Ally,
-                    usedTargetsAgain: false,
-                    ignoreFirst: false)
+                .AddComponent<ChaoticHealingDelivery>()
                 .AddContextRankConfig(ContextRankConfigs.CasterLevel(type: AbilityRankType.DamageDice).WithDivStepProgression(5))
-                .AddContextRankConfig(ContextRankConfigs.CasterLevel(type: AbilityRankType.ProjectilesCount, min: 1).WithDivStepProgression(2))
                 .Configure();
 
-            var heal = FindAction<ContextActionHealTarget>(ability.GetComponent<AbilityEffectRunAction>()?.Actions, new HashSet<object>());
-            if (heal == null)
+            ability.ComponentsArray = ability.ComponentsArray
+                .Where(component => component is not AbilityTargetsAround)
+                .ToArray();
+
+            var heals = new List<ContextActionHealTarget>();
+            CollectActions(ability.GetComponent<AbilityEffectRunAction>()?.Actions, heals, new HashSet<object>());
+            if (heals.Count == 0)
             {
                 Main.Logger.Error("Chaotic Healing is missing its heal action.");
             }
             else
             {
-                heal.Value = ContextDice.Value(
-                    DiceType.D20,
-                    ContextValues.Rank(AbilityRankType.DamageDice),
-                    ContextValues.Constant(0));
+                foreach (var heal in heals)
+                {
+                    heal.Value = ContextDice.Value(
+                        DiceType.D20,
+                        ContextValues.Rank(AbilityRankType.DamageDice),
+                        ContextValues.Constant(0));
+                }
             }
 
             ability.m_Description = Helpers.CreateString(
@@ -475,28 +476,33 @@ namespace MythicMagicMayhem.Azata
 
         private static T FindAction<T>(object node, HashSet<object> seen) where T : GameAction
         {
-            if (node == null || !seen.Add(node)) return null;
-            if (node is T match) return match;
+            var matches = new List<T>();
+            CollectActions(node, matches, seen);
+            return matches.FirstOrDefault();
+        }
+
+        private static void CollectActions<T>(object node, List<T> matches, HashSet<object> seen) where T : GameAction
+        {
+            if (node == null || !seen.Add(node)) return;
+            if (node is T match)
+                matches.Add(match);
 
             if (node is IEnumerable enumerable and not string)
             {
                 foreach (var item in enumerable)
                 {
                     if (item is not GameAction and not ActionList) continue;
-                    var found = FindAction<T>(item, seen);
-                    if (found != null) return found;
+                    CollectActions(item, matches, seen);
                 }
             }
 
-            if (node is not GameAction and not ActionList) return null;
+            if (node is not GameAction and not ActionList) return;
             foreach (var field in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 var value = field.GetValue(node);
                 if (value is not GameAction and not ActionList and not IEnumerable) continue;
-                var found = FindAction<T>(value, seen);
-                if (found != null) return found;
+                CollectActions(value, matches, seen);
             }
-            return null;
         }
 
         /// <summary>
@@ -1019,6 +1025,70 @@ namespace MythicMagicMayhem.Azata
             var caster = context.MaybeCaster;
             __result = caster != null && caster.IsEnemy(unit);
             return false;
+        }
+
+        /// <summary>
+        /// Applies the spell to each chosen ally immediately. The ray is launched for the
+        /// animation and is not allowed to decide whether the heal happens.
+        /// </summary>
+        [TypeId("f3a8c1d24e6b4a7f9d0c5b2e8a1f4c67")]
+        private class ChaoticHealingDelivery : AbilityDeliverEffect
+        {
+            public override IEnumerator<AbilityDeliveryTarget> Deliver(AbilityExecutionContext context, TargetWrapper target)
+            {
+                var caster = context?.MaybeCaster;
+                var current = target.Unit;
+                if (caster == null || current == null)
+                    yield break;
+
+                var origin = current.Position;
+                var radius = 30.Feet().Meters;
+                var count = Math.Max(1, context.Params.CasterLevel / 2);
+                var used = new HashSet<UnitEntityData>();
+                var previous = caster;
+
+                for (var i = 0; i < count && current != null; i++)
+                {
+                    used.Add(current);
+                    LaunchRay(previous, current);
+                    yield return new AbilityDeliveryTarget(current);
+
+                    previous = current;
+                    current = null;
+                    var bestDistance = float.MaxValue;
+                    foreach (var unit in Game.Instance.State.Units)
+                    {
+                        if (unit == null || used.Contains(unit) || unit.Descriptor.State.IsDead || caster.IsEnemy(unit))
+                            continue;
+
+                        var distance = (unit.Position - origin).magnitude;
+                        if (distance > radius || distance >= bestDistance)
+                            continue;
+
+                        bestDistance = distance;
+                        current = unit;
+                    }
+                }
+            }
+
+            private static void LaunchRay(UnitEntityData from, UnitEntityData to)
+            {
+                if (from == null || to == null || from == to)
+                    return;
+
+                try
+                {
+                    var projectile = ProjectileRefs.BuffRay00_Conjuration.Reference.Get();
+                    if (projectile == null)
+                        return;
+
+                    Game.Instance.ProjectileController.Launch(from, to, projectile);
+                }
+                catch (Exception exception)
+                {
+                    Main.Logger.Error("Chaotic Healing could not launch its ray.", exception);
+                }
+            }
         }
 
         [TypeId("c4a1e7b29d0f4a6e8b3c1d5f7a9e2b64")]
