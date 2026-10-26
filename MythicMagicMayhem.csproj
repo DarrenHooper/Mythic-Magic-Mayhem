@@ -27,8 +27,6 @@
 		<EmbeddedResource Remove="lib\**" />
 		<None Remove="lib\**" />
 		<None Remove="GamePath.props" />
-		<None Remove="ModMenu.dll" />
-		<Reference Include="$(WrathInstallDir)\Mods\ModMenu\ModMenu.dll" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Info.json" CopyToOutputDirectory="PreserveNewest" />

@@ -3,11 +3,11 @@ using BlueprintCore.Blueprints.Configurators.Root;
 using BlueprintCore.Utils;
 using HarmonyLib;
 using Kingmaker.Blueprints.JsonSystem;
+using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
+using UnityEngine;
 using UnityModManagerNet;
-using ModMenu.Settings;
-using MythicMagicMayhem.Menu;
-using System.Text;
 using MythicMagicMayhem.Mechanics;
 using MythicMagicMayhem.Angel;
 using MythicMagicMayhem.Lich;
@@ -21,24 +21,22 @@ namespace MythicMagicMayhem
   public static class Main
   {
     public static bool Enabled;
+    public static Settings Settings;
     public static readonly LogWrapper Logger = LogWrapper.Get("MythicMagicMayhem");
-        private static readonly string RootKey = "mod-menu.mmm-settings";
-        public static string GetKey(string partialKey)
-        {
-            return $"{RootKey}.{partialKey}";
-        }
 
-        public static bool AzataSpellBalanceChanges =>
-            ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg14"));
+    public static bool AzataSpellBalanceChanges => Settings.AzataSpellBalanceChanges;
 
-        public static bool EstimatedHitChance =>
-            ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg15"));
+    public static bool EstimatedHitChance => Settings.EstimatedHitChance;
 
-        public static bool Load(UnityModManager.ModEntry modEntry)
+    public static bool Load(UnityModManager.ModEntry modEntry)
     {
       try
       {
+        Settings = UnityModManager.ModSettings.Load<Settings>(modEntry);
+        ImportModMenuSettings(modEntry);
         modEntry.OnToggle = OnToggle;
+        modEntry.OnGUI = OnGUI;
+        modEntry.OnSaveGUI = OnSaveGUI;
         var harmony = new Harmony(modEntry.Info.Id);
         harmony.PatchAll();
         Logger.Info("Finished patching.");
@@ -55,19 +53,96 @@ namespace MythicMagicMayhem
       Enabled = value;
       return true;
     }
-        private static void Onclick()
+
+    private static void OnGUI(UnityModManager.ModEntry modEntry)
+    {
+      GUILayout.Label("Restart the game before a blueprint change applies. Do not turn off a feature this save has already used.");
+      GUILayout.Label("Estimated Hit Chance applies as soon as you toggle it.");
+      if (SpellbookMergeIsEnabled())
+      {
+        GUILayout.Label("Spellbook Merge is still enabled. Turn it off and restart. Both mods change merging.");
+      }
+
+      Settings.LichSpell = GUILayout.Toggle(Settings.LichSpell, "Lich Spell");
+      Settings.LichMount = GUILayout.Toggle(Settings.LichMount, "Lich Mount");
+      Settings.LichCompanion = GUILayout.Toggle(Settings.LichCompanion, "Lich Companion Feat");
+      Settings.LichFortitude = GUILayout.Toggle(Settings.LichFortitude, "Lich Fortitude");
+      Settings.AngelSpell = GUILayout.Toggle(Settings.AngelSpell, "Angel Spell");
+      Settings.AngelHalo = GUILayout.Toggle(Settings.AngelHalo, "Angel Halo");
+      Settings.AzataSpell = GUILayout.Toggle(Settings.AzataSpell, "Azata Spell");
+      Settings.AzataSuperpower = GUILayout.Toggle(Settings.AzataSuperpower, "Azata Superpower");
+      Settings.AzataSpellBalanceChanges = GUILayout.Toggle(Settings.AzataSpellBalanceChanges, "Azata Spell Balance Changes");
+      Settings.AeonSpell = GUILayout.Toggle(Settings.AeonSpell, "Aeon Spell");
+      Settings.DemonSpell = GUILayout.Toggle(Settings.DemonSpell, "Demon Spell");
+      Settings.TricksterSpell = GUILayout.Toggle(Settings.TricksterSpell, "Trickster Spell");
+      Settings.MergableSpellbooks = GUILayout.Toggle(Settings.MergableSpellbooks, "Mergable Spellbooks");
+      Settings.EstimatedHitChance = GUILayout.Toggle(Settings.EstimatedHitChance, "Estimated Hit Chance");
+    }
+
+    private static void OnSaveGUI(UnityModManager.ModEntry modEntry)
+    {
+      Settings.Save(modEntry);
+    }
+
+    private static void ImportModMenuSettings(UnityModManager.ModEntry modEntry)
+    {
+      if (Settings.ImportedModMenuSettings || string.IsNullOrEmpty(Application.persistentDataPath))
+        return;
+
+      var generalSettings = Path.Combine(Application.persistentDataPath, "general_settings.json");
+      if (!File.Exists(generalSettings))
+      {
+        Settings.ImportedModMenuSettings = true;
+        Settings.Save(modEntry);
+        return;
+      }
+
+      Settings.ImportedModMenuSettings = true;
+
+      try
+      {
+        var json = JObject.Parse(File.ReadAllText(generalSettings));
+        bool Read(string key, bool fallback)
         {
-            var log = new StringBuilder();
-            log.AppendLine("Current settings: ");
-            ///log.AppendLine($"-Toggle: {CheckToggle()}");
-            log.AppendLine($"-Default Slider Float: {ModMenu.ModMenu.GetSettingValue<float>(GetKey("float-default"))}");
-            log.AppendLine($"-Slider Float: {ModMenu.ModMenu.GetSettingValue<float>(GetKey("float"))}");
-            log.AppendLine($"-Default Slider Int: {ModMenu.ModMenu.GetSettingValue<int>(GetKey("int-default"))}");
-            log.AppendLine($"-Slider Int: {ModMenu.ModMenu.GetSettingValue<int>(GetKey("int"))}");
-            Logger.Info(log.ToString());
+          var token = json["mod-menu.mmm-settings." + key];
+          return token != null && token.Type == JTokenType.Boolean ? token.Value<bool>() : fallback;
         }
 
-        [HarmonyPatch(typeof(BlueprintsCache))]
+        Settings.LichSpell = Read("tg1", Settings.LichSpell);
+        Settings.LichMount = Read("tg2", Settings.LichMount);
+        Settings.LichCompanion = Read("tg3", Settings.LichCompanion);
+        Settings.LichFortitude = Read("tg4", Settings.LichFortitude);
+        Settings.AngelSpell = Read("tg5", Settings.AngelSpell);
+        Settings.AngelHalo = Read("tg6", Settings.AngelHalo);
+        Settings.MergableSpellbooks = Read("tg7", Settings.MergableSpellbooks);
+        Settings.AzataSpell = Read("tg9", Settings.AzataSpell);
+        Settings.AzataSuperpower = Read("tg10", Settings.AzataSuperpower);
+        Settings.AeonSpell = Read("tg11", Settings.AeonSpell);
+        Settings.DemonSpell = Read("tg12", Settings.DemonSpell);
+        Settings.TricksterSpell = Read("tg13", Settings.TricksterSpell);
+        Settings.AzataSpellBalanceChanges = Read("tg14", Settings.AzataSpellBalanceChanges);
+        Settings.EstimatedHitChance = Read("tg15", Settings.EstimatedHitChance);
+        Logger.Info("Copied toggles from the old ModMenu settings.");
+      }
+      catch (Exception e)
+      {
+        Logger.Error("Failed to copy ModMenu settings.", e);
+      }
+
+      Settings.Save(modEntry);
+    }
+
+    private static bool SpellbookMergeIsEnabled()
+    {
+      foreach (var entry in UnityModManager.modEntries)
+      {
+        if (entry.Info.Id == "SpellbookMerge" && entry.Enabled)
+          return true;
+      }
+      return false;
+    }
+
+    [HarmonyPatch(typeof(BlueprintsCache))]
     static class BlueprintsCaches_Patch
     {
       private static bool Initialized = false;
@@ -76,56 +151,6 @@ namespace MythicMagicMayhem
       [HarmonyPatch(nameof(BlueprintsCache.Init)), HarmonyPostfix]
             static void Init()
             {
-                ModMenu.ModMenu.AddSettings(
-                SettingsBuilder.New(RootKey, Helpers.CreateString("title-mmm", "Mythic Magic Mayhem"))
-                .AddDefaultButton().AddButton(Button.New(
-            Helpers.CreateString("button-desc-mmm", "Restart the game to apply changes!"), Helpers.CreateString("button-text-mmm", "Do Not Turn Any Chosen Features Off"), Onclick))
-          .AddToggle(
-            Toggle.New(GetKey("tg1"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm1", "Lich Spell"))
-                .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg2"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm2", "Lich Mount"))
-                .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg3"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm3", "Lich Companion Feat"))
-                .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg4"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm4", "Lich Fortitude"))
-                .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg5"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm5", "Angel Spell"))
-                .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg6"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm6", "Angel Halo"))
-                .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg9"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm9", "Azata Spell"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg10"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm10", "Azata Superpower"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg14"), defaultValue: false, Helpers.CreateString("toggle-desc-mmm14", "Azata Spell Balance Changes"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg11"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm11", "Aeon Spell"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg12"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm12", "Demon Spell"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg13"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm13", "Trickster Spell"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg7"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm7", "Mergable Spellbooks"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg8"), defaultValue: true, Helpers.CreateString("toggle-desc-mmm8", "Restore Owlcat Merger"))
-              .ShowVisualConnection())
-          .AddToggle(
-            Toggle.New(GetKey("tg15"), defaultValue: false, Helpers.CreateString("toggle-desc-mmm15", "Estimated Hit Chance"))
-              .ShowVisualConnection()));
-
                 try
         {
           if (Initialized)
@@ -138,11 +163,11 @@ namespace MythicMagicMayhem
           Logger.Info("Configuring blueprints.");
 
           //MyFeat.Configure();
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg2"))) { LichFeature.UndeadMount1Configure(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg3"))) { LichFeature.UndeadMount2Configure(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg4"))) { LichFeature.UnholyFortitudeConfigure(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg6"))) { AngelFeature.NewHalo1Configure(); AngelFeature.NewHalo2Configure(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg10"))) { AzataFeature.NewSuperp1Configure(); }
+                    if (Settings.LichMount) { LichFeature.UndeadMount1Configure(); }
+                    if (Settings.LichCompanion) { LichFeature.UndeadMount2Configure(); }
+                    if (Settings.LichFortitude) { LichFeature.UnholyFortitudeConfigure(); }
+                    if (Settings.AngelHalo) { AngelFeature.NewHalo1Configure(); AngelFeature.NewHalo2Configure(); }
+                    if (Settings.AzataSuperpower) { AzataFeature.NewSuperp1Configure(); }
                 }
         catch (Exception e)
         {
@@ -168,14 +193,14 @@ namespace MythicMagicMayhem
           }
           Initialized = true;
 
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg7"))) { MergableSpellbooks.Patch(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg1"))) { LichSpell.Patch(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg5"))) { AngelSpell.Patch(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg9"))) { AzataSpellTweak.Patch(); }
+                    if (Settings.MergableSpellbooks) { MergableSpellbooks.Patch(); }
+                    if (Settings.LichSpell) { LichSpell.Patch(); }
+                    if (Settings.AngelSpell) { AngelSpell.Patch(); }
+                    if (Settings.AzataSpell) { AzataSpellTweak.Patch(); }
                     if (AzataSpellBalanceChanges) { AzataSpellBalance.Patch(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg11"))) { AeonSpellTweak.Patch(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg12"))) { DemonSpellTweak.Patch(); }
-                    if (ModMenu.ModMenu.GetSettingValue<bool>(GetKey("tg13"))) { TricksterSpellTweak.Patch(); }
+                    if (Settings.AeonSpell) { AeonSpellTweak.Patch(); }
+                    if (Settings.DemonSpell) { DemonSpellTweak.Patch(); }
+                    if (Settings.TricksterSpell) { TricksterSpellTweak.Patch(); }
                     RootConfigurator.ConfigureDelayedBlueprints();
         }
         catch (Exception e)

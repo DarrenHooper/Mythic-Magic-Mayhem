@@ -7,7 +7,6 @@
 			<RepackLibraryPaths Include="$(TargetDir)" />
 			<RepackLibraryPaths Include="$(WrathInstallDir)\Wrath_Data\Managed" />
 			<RepackLibraryPaths Include="$(WrathInstallDir)\Wrath_Data\Managed\UnityModManager" />
-			<RepackLibraryPaths Include="$(WrathInstallDir)\Mods\ModMenu" />
 		</ItemGroup>
 		<ILRepack
 			Parallel="true"
