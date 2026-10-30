@@ -4,7 +4,7 @@
     "Author": "string, Bakaryu",
     "Version": "1.2.1",
     "ManagerVersion": "0.27.11",
-    "Requirements": [ "ModMenu-2.0.0", "SpellbookMerge-1.7.1" ],
+    "Requirements": [],
     "AssemblyName": "MythicMagicMayhem.dll",
     "EntryMethod": "MythicMagicMayhem.Main.Load"
 }
