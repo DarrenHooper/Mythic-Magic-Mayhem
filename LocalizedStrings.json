@@ -323,6 +323,346 @@
     "enGB": "Your mastery over demonic forms has reached an unparalleled level. Harnessing the power of the abyss you can transform into a Primeval Retriever, an ancient and unique hunter of the abyss that preyed upon even the most powerful of demons that trespassed into it's territory. This creature inspired such fear in all demon kind that it inspired the demon lords to fashion their retriever constructs in its image. The Primeval Retriever can cast disintegration as a swift action at will using your caster level for damage, a vicious bite that grapples it's prey and chitinous legs harder than adamantine.",
     "ruRU": "Ваше мастерство превращения в различных демонов достигло беспрецедентного уровня. Обуздав силы Бездны вы можете принять форму первородного ловчего, древнего и уникального охотника Бездны, который охотился даже на самых могущественных демонов, вторгшихся на его территорию. Это существо внушало такой страх всему демоническому роду, что даже вдохновило лордов демонов на создание конструктов по его образу и подобию. Первородный ловчий получает возможность сотворять заклинание Дезинтеграция при помощи быстрого действия, используя ваш уровень заклинателя для урона, жвала, при помощи которых можно ловить добычу, а также хитиновые лапы, прочность которых не уступает адамантину.",
     "zhCN": "你对恶魔形态的掌握已经达到了登峰造极的境界。你可以利用深渊的力量，变身成一头原初搜猎仪，这是一种古老而独特的深渊猎手，即使是最强大的恶魔，只要胆敢踏入它的领地，也会成为它的猎物。这种生物令所有恶魔都感到恐惧，以至于连恶魔领主们都以它的形象塑造了他们的搜猎仪构装体。原初猎犬可以随意以一个迅捷动作施放解离术，使用你的施法者等级来决定伤害，它还拥有可以擒抱猎物的利齿和比精金还要坚硬的几丁质腿爪。"
+  },
+  {
+    "Key": "BlackwaterMageWorking.Name",
+    "ProcessTemplates": false,
+    "enGB": "Heart of the Device (Mages)"
+  },
+  {
+    "Key": "BlackwaterMageWorking.Description",
+    "enGB": "This is an intermediate step of relic creation. The mages have the work."
+  },
+  {
+    "Key": "BlackwaterMageWorking.Flavor",
+    "enGB": "A crystal that serves as a powerful energy source. It was once the core of the sinister Device created by the technomancer Hundred-Face, but the commander of the crusade destroyed that abominable machine and took the Heart of the Device as {mf|his|her} trophy. Crusader mages have modified it to be more compatible with more traditional arcane enchantment."
+  },
+  {
+    "Key": "BlackwaterTechnicWorking.Name",
+    "ProcessTemplates": false,
+    "enGB": "Heart of the Device (Technic League)"
+  },
+  {
+    "Key": "BlackwaterTechnicWorking.Description",
+    "enGB": "This is an intermediate step of relic creation. The Technic League has the work."
+  },
+  {
+    "Key": "BlackwaterTechnicWorking.Flavor",
+    "enGB": "A crystal that serves as a powerful energy source. It was once the core of the sinister Device created by the technomancer Hundred-Face, but the commander of the crusade destroyed that abominable machine and took the Heart of the Device as {mf|his|her} trophy. Technic League craftsmen have modified it to be more compatible with their technology."
+  },
+  {
+    "Key": "BlackwaterMageStaff.Name",
+    "ProcessTemplates": false,
+    "enGB": "Staff of the Living Storm"
+  },
+  {
+    "Key": "BlackwaterMageStaff.Description",
+    "enGB": "+3 caster level for electricity spells.\n+2 damage per die for spells that deal electricity damage."
+  },
+  {
+    "Key": "BlackwaterMageStaff.Enchantment",
+    "enGB": "+3 caster level for electricity spells. +2 damage per die for spells that deal electricity damage."
+  },
+  {
+    "Key": "BlackwaterMageStaff.Flavor",
+    "enGB": "The Heart's power has been bound into an enchanted staff, transforming its unnatural electrical output into a source of extraordinary arcane strength."
+  },
+  {
+    "Key": "BlackwaterTechnicStaff.Name",
+    "ProcessTemplates": false,
+    "enGB": "Staff of the Galvanic Conduit"
+  },
+  {
+    "Key": "BlackwaterTechnicStaff.Description",
+    "enGB": "Whenever the wielder casts an electricity spell, this staff gains one charge, up to nine.\nAs a swift action, spend three charges to Empower the next electricity spell cast that round, or spend six charges to Empower and Maximize it."
+  },
+  {
+    "Key": "BlackwaterTechnicStaff.Enchantment",
+    "enGB": "Gains one charge whenever the wielder casts an electricity spell, up to nine. Spend three charges as a swift action to Empower the next electricity spell cast that round, or six charges to Empower and Maximize it."
+  },
+  {
+    "Key": "BlackwaterTechnicStaff.Flavor",
+    "enGB": "Technic League craftsmen have integrated the Heart into a staff which seems hungry for power, absorbing charge from the wielder's electrical magic before unleashing it in a deadly torrent."
+  },
+  {
+    "Key": "BlackwaterGalvanicCharge.Name",
+    "ProcessTemplates": false,
+    "enGB": "Galvanic Charge"
+  },
+  {
+    "Key": "BlackwaterGalvanicCharge.Description",
+    "enGB": "Charges stored in the Staff of the Galvanic Conduit."
+  },
+  {
+    "Key": "BlackwaterGalvanicEmpower.Name",
+    "ProcessTemplates": false,
+    "enGB": "Galvanic Empower"
+  },
+  {
+    "Key": "BlackwaterGalvanicEmpower.Description",
+    "enGB": "Spend 3 charges. The next electricity spell you cast this round is empowered."
+  },
+  {
+    "Key": "BlackwaterGalvanicSurge.Name",
+    "ProcessTemplates": false,
+    "enGB": "Galvanic Surge"
+  },
+  {
+    "Key": "BlackwaterGalvanicSurge.Description",
+    "enGB": "Spend 6 charges. The next electricity spell you cast this round is empowered and maximized."
+  },
+  {
+    "Key": "BlackwaterMageCirclet.Name",
+    "ProcessTemplates": false,
+    "enGB": "Circlet of the Awakened Mind"
+  },
+  {
+    "Key": "BlackwaterMageCirclet.Description",
+    "enGB": "+4 enhancement bonus to Intelligence, Wisdom, and Charisma.\n+2 bonus to saving throws against mind-affecting effects.\nAllies within 30 feet gain a +2 bonus to Will saving throws."
+  },
+  {
+    "Key": "BlackwaterMageCirclet.Enchantment",
+    "enGB": "+4 enhancement bonus to Intelligence, Wisdom, and Charisma. +2 bonus to saving throws against mind-affecting effects. Allies within 30 feet gain a +2 bonus to Will saving throws."
+  },
+  {
+    "Key": "BlackwaterMageCirclet.Flavor",
+    "enGB": "Enchanters have transformed the Heart into a jewel that amplifies its wearer's thoughts while shielding them from external influence."
+  },
+  {
+    "Key": "BlackwaterMageCircletAura.Name",
+    "ProcessTemplates": false,
+    "enGB": "Awakened Mind"
+  },
+  {
+    "Key": "BlackwaterMageCircletAura.Description",
+    "enGB": "+2 bonus to Will saving throws."
+  },
+  {
+    "Key": "BlackwaterTechnicCirclet.Name",
+    "ProcessTemplates": false,
+    "enGB": "Circlet of the Sovereign Will"
+  },
+  {
+    "Key": "BlackwaterTechnicCirclet.Description",
+    "enGB": "+6 enhancement bonus to Charisma.\n+2 DC to mind-affecting spells.\nNeural Override: As a free action, mark an enemy. You can mark a different enemy at any time. Once per day, when a different enemy fails a saving throw against your mind-affecting spell, the marked creature must succeed at a Will save against that spell's DC or be dominated for 1 round."
+  },
+  {
+    "Key": "BlackwaterTechnicCirclet.Enchantment",
+    "enGB": "+6 enhancement bonus to Charisma. +2 DC to mind-affecting spells. Mark an enemy as a free action. You can change the mark freely. Once per day, when a different enemy fails a saving throw against your mind-affecting spell, the marked creature must succeed at a Will save against that DC or be dominated for 1 round."
+  },
+  {
+    "Key": "BlackwaterTechnicCirclet.Flavor",
+    "enGB": "Numerian artificers have preserved the Heart's ability to interfere with the nervous system, allowing the wearer to briefly seize control of another creature."
+  },
+  {
+    "Key": "BlackwaterSovereign.Resource",
+    "ProcessTemplates": false,
+    "enGB": "Neural Override"
+  },
+  {
+    "Key": "BlackwaterSovereign.ResourceDescription",
+    "enGB": "The Circlet of the Sovereign Will can seize one creature each day."
+  },
+  {
+    "Key": "BlackwaterSovereign.AbilityName",
+    "ProcessTemplates": false,
+    "enGB": "Neural Override"
+  },
+  {
+    "Key": "BlackwaterSovereign.AbilityDescription",
+    "enGB": "Mark an enemy. You can use this again to mark someone else. The daily use is spent only when a different enemy fails a saving throw against your mind-affecting spell: the marked creature must then succeed at a Will save against that spell's DC or be dominated for 1 round."
+  },
+  {
+    "Key": "BlackwaterSovereign.MarkName",
+    "ProcessTemplates": false,
+    "enGB": "Marked for Override"
+  },
+  {
+    "Key": "BlackwaterSovereign.MarkDescription",
+    "enGB": "If another enemy fails a saving throw against the wearer's mind-affecting spell, this creature must succeed at a Will save against that DC or be dominated for 1 round."
+  },
+  {
+    "Key": "BlackwaterSovereign.DominateName",
+    "ProcessTemplates": false,
+    "enGB": "Neural Override"
+  },
+  {
+    "Key": "BlackwaterSovereign.DominateDescription",
+    "enGB": "Dominated for 1 round."
+  },
+  {
+    "Key": "BlackwaterMageCrossbow.Name",
+    "ProcessTemplates": false,
+    "enGB": "Thunderbolt"
+  },
+  {
+    "Key": "BlackwaterMageCrossbow.Description",
+    "enGB": "+4 shocking burst heavy crossbow.\nBolts fired from this weapon count as adamantine for overcoming damage reduction and suppressing regeneration.\nEach successful hit deals an additional 1d6 electricity damage, beyond the normal Shock effect.\nOn a confirmed critical hit, the target takes an additional 2d6 sonic damage."
+  },
+  {
+    "Key": "BlackwaterMageCrossbow.Flavor",
+    "enGB": "The Heart empowers an enchanted adamantine firing mechanism, imbuing every bolt with the fury of a thunderstorm."
+  },
+  {
+    "Key": "BlackwaterThunderbolt.SonicName",
+    "ProcessTemplates": false,
+    "enGB": "Thunderbolt"
+  },
+  {
+    "Key": "BlackwaterThunderbolt.SonicDescription",
+    "enGB": "On a confirmed critical hit, the target takes an additional 2d6 sonic damage."
+  },
+  {
+    "Key": "BlackwaterTechnicCrossbow.Name",
+    "ProcessTemplates": false,
+    "enGB": "Galvanic Accelerator"
+  },
+  {
+    "Key": "BlackwaterTechnicCrossbow.Description",
+    "enGB": "+4 heavy crossbow.\nProjectiles count as adamantine for overcoming damage reduction and suppressing regeneration.\nKinetic Acceleration: base weapon damage increases from 1d10 to 2d8 piercing.\nHypervelocity Shot: Three times per day, as a swift action, the next attack with this weapon this round targets touch AC and deals an additional 2d8 piercing damage on a hit."
+  },
+  {
+    "Key": "BlackwaterTechnicCrossbow.Enchantment",
+    "enGB": "Base weapon damage is 2d8 piercing. Three times per day, as a swift action, the next attack with this weapon this round targets touch AC and deals an additional 2d8 piercing damage on a hit."
+  },
+  {
+    "Key": "BlackwaterTechnicCrossbow.Flavor",
+    "enGB": "Technic League engineers have built an electromagnetic launcher around the Heart, using its electrical output to accelerate projectiles to extraordinary speeds."
+  },
+  {
+    "Key": "BlackwaterAccelerator.Resource",
+    "ProcessTemplates": false,
+    "enGB": "Hypervelocity Shot"
+  },
+  {
+    "Key": "BlackwaterAccelerator.ResourceDescription",
+    "enGB": "The Galvanic Accelerator can fire three hypervelocity shots each day."
+  },
+  {
+    "Key": "BlackwaterAccelerator.AbilityName",
+    "ProcessTemplates": false,
+    "enGB": "Hypervelocity Shot"
+  },
+  {
+    "Key": "BlackwaterAccelerator.AbilityDescription",
+    "enGB": "The next attack with the Galvanic Accelerator this round targets touch AC. A hit deals an additional 2d8 piercing damage. A miss still spends this use."
+  },
+  {
+    "Key": "BlackwaterAccelerator.BuffDescription",
+    "enGB": "The next attack with the Galvanic Accelerator this round targets touch AC and deals an additional 2d8 piercing damage on a hit."
+  },
+  {
+    "Key": "BlackwaterProject.Name",
+    "ProcessTemplates": false,
+    "enGB": "The Blackwater Initiative"
+  },
+  {
+    "Key": "BlackwaterProject.Description",
+    "enGB": "Choose who will work the relic."
+  },
+  {
+    "Key": "BlackwaterProject.Mechanical",
+    "enGB": "The relic passes to the mages or the Technic League."
+  },
+  {
+    "Key": "BlackwaterProject.Success",
+    "enGB": "The working is ready to be chosen."
+  },
+  {
+    "Key": "BlackwaterEnchantProject.Name",
+    "ProcessTemplates": false,
+    "enGB": "Enchanting the Blackwater Initiative"
+  },
+  {
+    "Key": "BlackwaterEnchantProject.Description",
+    "enGB": "Choose the form of the relic."
+  },
+  {
+    "Key": "BlackwaterEnchantProject.Mechanical",
+    "enGB": "The relic becomes a staff, a circlet, or a heavy crossbow."
+  },
+  {
+    "Key": "BlackwaterEnchantProject.Success",
+    "enGB": "The form of the relic is ready to be chosen."
+  },
+  {
+    "Key": "BlackwaterReforgeEvent.Name",
+    "ProcessTemplates": false,
+    "enGB": "The Blackwater Initiative"
+  },
+  {
+    "Key": "BlackwaterReforgeEvent.Description",
+    "enGB": "Choose who will work the relic."
+  },
+  {
+    "Key": "BlackwaterChoice.Mages",
+    "ProcessTemplates": false,
+    "enGB": "Mages"
+  },
+  {
+    "Key": "BlackwaterChoice.MagesResult",
+    "enGB": "The mages of the Crusade had no understanding of the underlying technology of the Device, but they understood power. They turned the Heart into a powerful source of arcane magic."
+  },
+  {
+    "Key": "BlackwaterChoice.Technic",
+    "ProcessTemplates": false,
+    "enGB": "Technic League"
+  },
+  {
+    "Key": "BlackwaterChoice.TechnicResult",
+    "enGB": "You called for craftsmen from the Technic League to examine the Heart, repairing much of the damage you'd done when removing it from the Device. It is now compatible with most Numerian technology."
+  },
+  {
+    "Key": "BlackwaterEnchantEvent.Name",
+    "ProcessTemplates": false,
+    "enGB": "Enchanting the Blackwater Initiative"
+  },
+  {
+    "Key": "BlackwaterEnchantEvent.Description",
+    "enGB": "Choose the form of the relic."
+  },
+  {
+    "Key": "BlackwaterChoice.Staff",
+    "ProcessTemplates": false,
+    "enGB": "Staff"
+  },
+  {
+    "Key": "BlackwaterChoice.MageStaffResult",
+    "enGB": "The mages shape the relic into the Staff of the Living Storm."
+  },
+  {
+    "Key": "BlackwaterChoice.TechnicStaffResult",
+    "enGB": "The Technic League shapes the relic into the Staff of the Galvanic Conduit."
+  },
+  {
+    "Key": "BlackwaterChoice.Circlet",
+    "ProcessTemplates": false,
+    "enGB": "Circlet"
+  },
+  {
+    "Key": "BlackwaterChoice.MageCircletResult",
+    "enGB": "The mages shape the relic into the Circlet of the Awakened Mind."
+  },
+  {
+    "Key": "BlackwaterChoice.TechnicCircletResult",
+    "enGB": "The Technic League shapes the relic into the Circlet of the Sovereign Will."
+  },
+  {
+    "Key": "BlackwaterChoice.Crossbow",
+    "ProcessTemplates": false,
+    "enGB": "Heavy Crossbow"
+  },
+  {
+    "Key": "BlackwaterChoice.MageCrossbowResult",
+    "enGB": "The mages shape the relic into Thunderbolt."
+  },
+  {
+    "Key": "BlackwaterChoice.TechnicCrossbowResult",
+    "enGB": "The Technic League shapes the relic into the Galvanic Accelerator."
+  },
+  {
+    "Key": "Blackwater.Unavailable",
+    "ProcessTemplates": false,
+    "enGB": "Unavailable"
   }
-
 ]

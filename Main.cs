@@ -14,6 +14,7 @@ using MythicMagicMayhem.Lich;
 using MythicMagicMayhem.Azata;
 using MythicMagicMayhem.Aeon;
 using MythicMagicMayhem.Demon;
+using MythicMagicMayhem.Relics;
 using MythicMagicMayhem.Trickster;
 
 namespace MythicMagicMayhem
@@ -77,6 +78,7 @@ namespace MythicMagicMayhem
       Settings.TricksterSpell = GUILayout.Toggle(Settings.TricksterSpell, "Trickster Spell");
       Settings.MergableSpellbooks = GUILayout.Toggle(Settings.MergableSpellbooks, "Mergable Spellbooks");
       Settings.EstimatedHitChance = GUILayout.Toggle(Settings.EstimatedHitChance, "Estimated Hit Chance");
+      Settings.BlackwaterInitiative = GUILayout.Toggle(Settings.BlackwaterInitiative, "The Blackwater Initiative");
     }
 
     private static void OnSaveGUI(UnityModManager.ModEntry modEntry)
@@ -168,6 +170,7 @@ namespace MythicMagicMayhem
                     if (Settings.LichFortitude) { LichFeature.UnholyFortitudeConfigure(); }
                     if (Settings.AngelHalo) { AngelFeature.NewHalo1Configure(); AngelFeature.NewHalo2Configure(); }
                     if (Settings.AzataSuperpower) { AzataFeature.NewSuperp1Configure(); }
+                    if (Settings.BlackwaterInitiative) { BlackwaterInitiative.Configure(); }
                 }
         catch (Exception e)
         {

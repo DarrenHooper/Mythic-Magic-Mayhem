@@ -18,6 +18,7 @@ namespace MythicMagicMayhem
         public bool TricksterSpell = true;
         public bool MergableSpellbooks = true;
         public bool EstimatedHitChance = false;
+        public bool BlackwaterInitiative = true;
         public bool ImportedModMenuSettings = false;
 
         public override void Save(UnityModManager.ModEntry modEntry)
