@@ -233,6 +233,8 @@ namespace MythicMagicMayhem.Relics
             KingdomRootConfigurator.For(KingdomRootRefs.KingdomRoot)
                 .AddToKingdomProjectEvents(ReforgeProject, MageProject, TechnicProject)
                 .Configure();
+
+            BlastingBracers.Configure();
         }
 
         private static void CreateKeyItem(string name, string guid, string textKey)

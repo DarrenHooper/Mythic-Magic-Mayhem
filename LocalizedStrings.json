@@ -664,5 +664,27 @@
     "Key": "Blackwater.Unavailable",
     "ProcessTemplates": false,
     "enGB": "Unavailable"
+  },
+  {
+    "Key": "BlackwaterBlastingBracers.Name",
+    "ProcessTemplates": false,
+    "enGB": "Blasting Bracers"
+  },
+  {
+    "Key": "BlackwaterBlastingBracers.Description",
+    "enGB": "These bracers grant an armor bonus of +2. This bonus does not stack with armor bonuses from armor or from mage armor.\nAs a standard action, the wearer can fire a laser beam at will. The beam is a close-range ranged touch attack that deals 4d6 fire damage."
+  },
+  {
+    "Key": "BlackwaterBlastingBracers.Flavor",
+    "enGB": "These bracers are of Numerian technology."
+  },
+  {
+    "Key": "BlackwaterBlastingBracers.LaserName",
+    "ProcessTemplates": false,
+    "enGB": "Laser Beam"
+  },
+  {
+    "Key": "BlackwaterBlastingBracers.LaserDescription",
+    "enGB": "A close-range ranged touch attack that deals 4d6 fire damage. Fire resistance applies."
   }
 ]
